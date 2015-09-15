@@ -45,14 +45,16 @@ class ProxyClient(proxy.ProxyClient):
     @classmethod
     def _transform_content(cls, raw):
         soup = BeautifulSoup(raw, 'lxml')
-        for tag in soup.body.find_all(
-                string=lambda s: not isinstance(s, Comment)):
-            if tag.parent.name in ('script', 'noscript'):
-                continue
-            text = tag.string.strip()
-            if text:
-                text_with_tm = cls.word_re.sub(ur'\1™', text)
-                tag.string.replace_with(text_with_tm)
+        body = soup.body
+        if body:
+            for tag in body.find_all(
+                    string=lambda s: not isinstance(s, Comment)):
+                if tag.parent.name in ('script', 'noscript'):
+                    continue
+                text = tag.string.strip()
+                if text:
+                    text_with_tm = cls.word_re.sub(ur'\1™', text)
+                    tag.string.replace_with(text_with_tm)
         return ''.join(x.encode('utf-8') for x in soup.prettify())
 
 
